@@ -1,5 +1,6 @@
 #include "ManejoUsuario.h"
 
+
 stNodo * cargarUsuario(Usuario usuario,int id,stNodo * lista,int adm)
 {
     int i=0;
@@ -11,9 +12,11 @@ stNodo * cargarUsuario(Usuario usuario,int id,stNodo * lista,int adm)
     fflush(stdin);
     gets(nombre);
     existente=buscarUsuario(usuario,nombre,lista);
+    printf("%i",existente);
 
     if(existente == -1)
     {
+        printf("Esta compiando el nombre\n");
         strcpy(usuario.nombreUsuario,nombre);
         printf("\n\t\t\t\t<<<<<<<<<<INGRESE PASSWORD>>>>>>>>\n\n\t\t\t\t\t");
         fflush(stdin);
@@ -26,7 +29,7 @@ stNodo * cargarUsuario(Usuario usuario,int id,stNodo * lista,int adm)
         }
         usuario.pass[i]='\0';
         printf("\n");
-        printf("\n\t\t\t\t<<<<INGRESE AÑO DE NACIMIENTO>>>>>>\n\n\t\t\t\t\t");
+        printf("\n\t\t\t\t<<<<INGRESE AÃ‘O DE NACIMIENTO>>>>>>\n\n\t\t\t\t\t");
         fflush(stdin);
         scanf("%i",&usuario.anioNacimiento);
 
@@ -74,12 +77,12 @@ stNodo * cargarMasUsuario(stNodo *lista)
         fflush(stdin);
         scanf("%c",&control);
     }
-    while(control != 27);
+    while(control != 'n');
     return lista;
 }
 void guardarUsuario(Usuario usuario)
 {
-    FILE *archi=fopen("archivo","ab");
+    FILE *archi=fopen(ARCHIVO,"ab");
     if(archi!=NULL)
     {
         fwrite(&usuario,sizeof(Usuario),1,archi);
@@ -90,7 +93,7 @@ void guardarUsuario(Usuario usuario)
 void mostrarTodosArchivo()
 {
     Usuario usuario;
-    FILE *archi=fopen("archivo","rb");
+    FILE *archi=fopen(ARCHIVO,"rb");
     if(archi!=NULL)
     {
         while(fread(&usuario,sizeof(Usuario),1,archi)>0)
@@ -113,7 +116,7 @@ void mostrarTodosLista(stNodo * lista)
 void mostrarActivosArchivo()
 {
     Usuario usuario;
-    FILE *archi=fopen("archivo","rb");
+    FILE *archi=fopen(ARCHIVO,"rb");
     if(archi!=NULL)
     {
         while(fread(&usuario,sizeof(Usuario),1,archi)>0)
@@ -155,7 +158,6 @@ void mostrarAlumno(Usuario usuario)
     printf("\t\t\t\tGenero:             \t%c\n",usuario.genero);
     printf("\t\t\t\tAnio de nacimiento: \t%i\n",usuario.anioNacimiento);
     printf("\t\t\t\tPais de origen:     \t%s\n",usuario.pais);
-
     printf("\t\t\t\tEliminado:          \t%i\n",usuario.eliminado);
     printf("\t\t\t\tCantidad de canciones: \t%i\n",usuario.cantidad);
     printf("\t\t\t\t");
@@ -167,7 +169,7 @@ int traerUltimoid()
 {
     Usuario usuario;
     int id=-1;
-    FILE*archi=fopen("archivo","rb");
+    FILE*archi=fopen(ARCHIVO,"rb");
     if(archi!=NULL)
     {
         fseek(archi,sizeof(Usuario)*(-1),SEEK_END);
@@ -182,7 +184,7 @@ int traerUltimoid()
 int contarRegistrosUSU(char archivo[],int pesoDato)
 {
     int total=0;
-    FILE *archi=fopen("archivo","rb");
+    FILE *archi=fopen(archivo,"rb");
     if(archi!=NULL)
     {
         fseek(archi,0,SEEK_END);
@@ -238,7 +240,7 @@ void linea(int largo)
 Usuario buscar(Usuario usuario,char buscador[],stNodo * lista)
 {
     Usuario aux;
-    stNodo * seg=iniclista();
+    stNodo * seg=inicLista();
     int id=-1;
     int flag=0;
     int val;
@@ -260,22 +262,25 @@ Usuario buscar(Usuario usuario,char buscador[],stNodo * lista)
 }
 int buscarUsuario(Usuario usuario,char buscador[],stNodo * lista)
 {
+    printf("Entro a buscar Usuario\n");
     int flag=0;
     int id=-1;
-
     if(lista!=NULL)
     {
+        printf("Lista!=NULL\n");
         if(strcmp(lista->dato.nombreUsuario,buscador)==0)
         {
+            printf("Encontro coincidencias\n");
             id=usuario.idUsuario;
             flag=1;
         }
         else
         {
-            id=buscarUsuario(usuario,buscador,lista);
+            printf("Sige buscando\n");
+            id=buscarUsuario(usuario,buscador,lista->siguiente);
         }
     }
-    return id;
+return id;
 }
 int confirmarAcceso(Usuario usuario,int id,char password[],stNodo * lista)
 {
@@ -314,7 +319,7 @@ stNodo * baja(char nombre[],Usuario usuario,stNodo * lista)
         aux=buscar(usuario,nombre,lista);
         pos=aux.idUsuario;
         aux.eliminado=1;
-        FILE *archi=fopen("archivo","r+b");
+        FILE *archi=fopen(ARCHIVO,"r+b");
         if(archi!=NULL && confirmacion!=-1)
         {
             fseek(archi,sizeof(Usuario)*pos,SEEK_SET);
@@ -341,13 +346,13 @@ stNodo * altaUsuario(char nombre[],Usuario usuario,stNodo * lista){
         aux=buscar(usuario,nombre,lista);
         pos=aux.idUsuario;
         aux.eliminado=0;
-        FILE *archi=fopen("archivo","r+b");
+        FILE *archi=fopen(ARCHIVO,"r+b");
         if(archi!=NULL && confirmacion!=-1)
         {
             fseek(archi,sizeof(Usuario)*pos,SEEK_SET);
             fwrite(&aux,sizeof(Usuario),1,archi);
             fclose(archi);
-            lista=agregarOrdenado(lista,crearUsuario(aux));
+            lista=agregarOrdenado(lista,crearNodoUsu(aux));
 
         }
 
@@ -381,7 +386,7 @@ void Logo()
 }
 stNodo * modificar(Usuario usuario,int opcion,stNodo * lista)
 {
-//caso 1: cambia nombre//caso 2:cambia contraseña//case 3:cambia edad//caso 4: cambia pais;
+//caso 1: cambia nombre//caso 2:cambia contraseÃ±a//case 3:cambia edad//caso 4: cambia pais;
     char nomPass[50];
     int edad;
     switch(opcion)
@@ -417,8 +422,8 @@ stNodo * modificar(Usuario usuario,int opcion,stNodo * lista)
         break;
     }
     mostrarAlumno(usuario);
-    lista=remplazar(lista,crearUsuario(usuario));
-    FILE *archi=fopen("archivo","r+b");
+    lista=remplazar(lista,crearNodoUsu(usuario));
+    FILE *archi=fopen(ARCHIVO,"r+b");
     if(archi!=NULL)
     {
         fseek(archi,sizeof(Usuario)*usuario.idUsuario,SEEK_SET);
@@ -479,3 +484,152 @@ void cursor()
     info.bVisible=FALSE;
     SetConsoleCursorInfo(consoleHadle,&info);
 }
+
+stNodo * archivoToLista(stNodo * lista){
+    Usuario aux;
+    FILE * archi=fopen(ARCHIVO,"rb");
+    if(archi!=NULL){
+        while(fread(&aux,sizeof(Usuario),1,archi)>0){
+            lista=agregarOrdenado(lista,crearNodoUsu(aux));
+        }
+    }
+return lista;
+}
+
+void spotifyMovimiento(int inicio,int finalizacion,int velocidad,int altura){
+
+    int i=1;
+
+    int x=inicio;
+    int y=altura;
+    while (x>finalizacion)
+    {
+
+        system("cls");
+        color(i);
+        printf("\n\n");
+        printf("\n\n\n\n\n");
+        gotoxy(x,y);
+        printf("%c%c%c%c%c%c%c",219,219,219,219,219,219,219);
+        printf(" %c%c%c%c%c%c%c",219,219,219,219,219,219,219);
+        printf(" %c%c%c%c%c%c%c%c",219,219,219,219,219,219,219,219);
+        printf(" %c%c%c%c%c%c%c%c%c",219,219,219,219,219,219,219,219,219);
+        printf(" %c%c%c",219,219,219);
+        printf(" %c%c%c%c%c%c%c%c",219,219,219,219,219,219,219,219);
+        printf(" %c%c%c   %c%c%c",219,219,219,219,219,219);
+        gotoxy(x,y+1);
+        printf("%c%c%c%",219,219,219);
+        printf("     %c%c%c",219,219,219);
+        printf("  %c%c",219,219);
+        printf(" %c%c%c",219,219,219);
+        printf("  %c%c%c",219,219,219);
+        printf("    %c%c%c",219,219,219);
+        printf("    %c%c%c",219,219,219);
+        printf(" %c%c%c",219,219,219);
+        printf("       %c%c%c %c%c%c",219,219,219,219,219,219);
+
+        gotoxy(x,y+2);
+        printf("%c%c%c",219,219,219);
+        printf("%c%c%c%c",219,219,219,219);
+        printf(" %c%c%c%c%c%c%c",219,219,219,219,219,219,219);
+        printf(" %c%c%c",219,219,219);
+        printf("  %c%c%c",219,219,219);
+        printf("    %c%c%c",219,219,219);
+        printf("    %c%c%c",219,219,219);
+        printf(" %c%c%c%c%c%c%c%c",219,219,219,219,219,219,219,219);
+        printf("   %c%c%c%c%c",219,219,219,219,219);
+
+        gotoxy(x,y+3);
+        printf("     %c%c",219,219);
+        printf(" %c%c%c",219,219,219);
+        printf("     %c%c%c",219,219,219);
+        printf("  %c%c%c",219,219,219);
+        printf("    %c%c%c",219,219,219);
+        printf("    %c%c%c",219,219,219);
+        printf(" %c%c%c",219,219,219);
+        printf("         %c%c%c",219,219,219);
+
+        gotoxy(x,y+4);
+        printf("%c%c%c%c%c%c%c",219,219,219,219,219,219,219);
+        printf(" %c%c%c",219,219,219);
+        printf("     %c%c%c%c%c%c%c%c",219,219,219,219,219,219,219,219);
+        printf("    %c%c%c",219,219,219);
+        printf("    %c%c%c",219,219,219);
+        printf(" %c%c%c",219,219,219);
+        printf("         %c%c%c",219,219,219);
+
+        printf("\n\n");
+        printf("\t\t\t\t");
+        x=x-velocidad;
+        i++;
+    }
+    system("cls");
+    system("color A");
+            printf("\n\n");
+        printf("\n\n\n\n\n");
+        gotoxy(x,y);
+        printf("%c%c%c%c%c%c%c",219,219,219,219,219,219,219);
+        printf(" %c%c%c%c%c%c%c",219,219,219,219,219,219,219);
+        printf(" %c%c%c%c%c%c%c%c",219,219,219,219,219,219,219,219);
+        printf(" %c%c%c%c%c%c%c%c%c",219,219,219,219,219,219,219,219,219);
+        printf(" %c%c%c",219,219,219);
+        printf(" %c%c%c%c%c%c%c%c",219,219,219,219,219,219,219,219);
+        printf(" %c%c%c   %c%c%c",219,219,219,219,219,219);
+        gotoxy(x,y+1);
+        printf("%c%c%c%",219,219,219);
+        printf("     %c%c%c",219,219,219);
+        printf("  %c%c",219,219);
+        printf(" %c%c%c",219,219,219);
+        printf("  %c%c%c",219,219,219);
+        printf("    %c%c%c",219,219,219);
+        printf("    %c%c%c",219,219,219);
+        printf(" %c%c%c",219,219,219);
+        printf("       %c%c%c %c%c%c",219,219,219,219,219,219);
+
+        gotoxy(x,y+2);
+        printf("%c%c%c",219,219,219);
+        printf("%c%c%c%c",219,219,219,219);
+        printf(" %c%c%c%c%c%c%c",219,219,219,219,219,219,219);
+        printf(" %c%c%c",219,219,219);
+        printf("  %c%c%c",219,219,219);
+        printf("    %c%c%c",219,219,219);
+        printf("    %c%c%c",219,219,219);
+        printf(" %c%c%c%c%c%c%c%c",219,219,219,219,219,219,219,219);
+        printf("   %c%c%c%c%c",219,219,219,219,219);
+
+        gotoxy(x,y+3);
+        printf("     %c%c",219,219);
+        printf(" %c%c%c",219,219,219);
+        printf("     %c%c%c",219,219,219);
+        printf("  %c%c%c",219,219,219);
+        printf("    %c%c%c",219,219,219);
+        printf("    %c%c%c",219,219,219);
+        printf(" %c%c%c",219,219,219);
+        printf("         %c%c%c",219,219,219);
+
+        gotoxy(x,y+4);
+        printf("%c%c%c%c%c%c%c",219,219,219,219,219,219,219);
+        printf(" %c%c%c",219,219,219);
+        printf("     %c%c%c%c%c%c%c%c",219,219,219,219,219,219,219,219);
+        printf("    %c%c%c",219,219,219);
+        printf("    %c%c%c",219,219,219);
+        printf(" %c%c%c",219,219,219);
+        printf("         %c%c%c",219,219,219);
+
+        printf("\n\n");
+        printf("\t\t\t\t");
+
+}
+
+int contarRegistros(int pesoDat){
+    FILE * archi=fopen(ARCHIVO,"rb");
+    int cantidad;
+    if(archi!=NULL){
+        fseek(archi,0,SEEK_END);
+        cantidad=ftell(archi)/pesoDat;
+    }
+return cantidad;
+
+}
+
+///spotifyMovimiento(70,20,2,3);
